@@ -1,6 +1,6 @@
 {
   "name": "gladys-edmonton-transit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Gladys Assistant external integration for Edmonton Transit Service (ETS): next bus departures in real time, LRT timetable and line status.",
   "type": "module",

@@ -1,0 +1,28 @@
+Gladys ETS Edmonton
+Copyright 2026 the gladys-edmonton-transit contributors
+
+This product includes software adapted from:
+
+  - gladys-transport-commun-lyonnais (https://github.com/prohand/gladys-transport-commun-lyonnais),
+    licensed under the Apache License 2.0: src/devices/pollSchedule.js,
+    stateCache.js, readings.js, featureRange.js, publish.js, refreshLoop.js,
+    and the structure of index.js, src/devices/index.js, src/scenes/ and
+    src/widgets/.
+  - integration-template-js (https://github.com/GladysAssistant/integration-template-js),
+    licensed under the Apache License 2.0: the GitHub workflows, the release
+    script, the Dockerfile and the lint configuration.
+  - gladys-stm (https://github.com/LM1LC3N7/gladys-stm), licensed under the
+    Apache License 2.0: the rest of the code.
+
+This product includes data derived from the ETS static GTFS of the City of
+Edmonton (gtfs/stops.json, gtfs/routes.json), under the City of Edmonton
+Open Data Terms of Use
+(https://data.edmonton.ca/stories/s/City-of-Edmonton-Open-Data-Terms-of-Use/msh8-if28).
+
+Data sources (not distributed with this software):
+
+  - ETS real-time trip updates and service alerts, City of Edmonton open
+    data, under the same terms.
+  - Transitous (https://transitous.org/sources/), community routing service
+    built on the ETS timetables and OpenStreetMap (© OpenStreetMap
+    contributors, ODbL).

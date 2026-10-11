@@ -1,0 +1,663 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "ETS Edmonton",
+  "description": {
+    "en": "Next Edmonton Transit (ETS) bus departures in real time, LRT timetable and line status.",
+    "fr": "Prochains passages des autobus d'ETS à Edmonton en temps réel, horaires et état du SLR."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-edmonton-transit:0.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-edmonton-transit/main/cover.png",
+  "categories": ["services"],
+  "transports": ["cloud"],
+  "location": true,
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Get started in 2 minutes",
+        "fr": "Démarrer en 2 minutes"
+      },
+      "description": {
+        "en": "1. Check that your house has an address in Gladys (Settings → Houses). 2. Save this page. 3. Open the “Discover” tab of this integration and press “Add” on the stops near your home. That's it: you get the next departures right away. The ETS real time and the line status come with it, without any key.",
+        "fr": "1. Vérifiez que votre maison a une adresse dans Gladys (Paramètres → Maisons). 2. Enregistrez cette page. 3. Ouvrez l’onglet « Découverte » de cette intégration et cliquez sur « Ajouter » sur les arrêts près de chez vous. C’est tout : vous avez tout de suite les prochains passages. Le temps réel ETS et l’état des lignes sont inclus, sans aucune clé."
+      },
+      "links": [
+        {
+          "url": "https://github.com/LM1LC3N7/gladys-edmonton-transit/blob/main/docs/fr.md",
+          "label": {
+            "en": "Step-by-step guide",
+            "fr": "Guide pas à pas"
+          }
+        },
+        {
+          "url": "https://transitous.org/sources/",
+          "label": {
+            "en": "Timetable data (Transitous)",
+            "fr": "Données des horaires (Transitous)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "nearby",
+      "type": "section",
+      "label": {
+        "en": "Near my home",
+        "fr": "Près de chez moi"
+      },
+      "description": {
+        "en": "How many of the closest stops (within 600 m) are proposed in the “Discover” tab. 0 turns the suggestion off.",
+        "fr": "Combien d’arrêts (à moins de 600 m) parmi les plus proches sont proposés dans l’onglet « Découverte ». 0 désactive la suggestion."
+      }
+    },
+    {
+      "key": "nearby_stops",
+      "type": "number",
+      "label": {
+        "en": "Stops near my home",
+        "fr": "Arrêts près de chez moi"
+      },
+      "required": false,
+      "default": 3,
+      "min": 0,
+      "max": 8
+    },
+    {
+      "key": "lines",
+      "type": "section",
+      "label": {
+        "en": "Lines",
+        "fr": "Lignes"
+      },
+      "description": {
+        "en": "The status of the Capital, Metro and Valley LRT lines, from the ETS service alerts.",
+        "fr": "L’état des lignes Capital, Metro et Valley du SLR, d’après les alertes de service ETS."
+      }
+    },
+    {
+      "key": "watch_lines",
+      "type": "boolean",
+      "label": {
+        "en": "Watch the lines",
+        "fr": "Surveiller les lignes"
+      },
+      "description": {
+        "en": "Creates a \"ETS – LRT\" device with the status of the Capital, Metro and Valley LRT lines.",
+        "fr": "Crée un appareil « ETS – SLR » avec l'état des lignes Capital, Metro et Valley du SLR."
+      },
+      "required": false,
+      "default": true
+    },
+    {
+      "key": "watch",
+      "type": "section",
+      "label": {
+        "en": "Other stops (optional)",
+        "fr": "Autres arrêts (facultatif)"
+      },
+      "description": {
+        "en": "To watch a stop that is not near your home (work, school…): type its number, written on the stop sign, or find it with the “Find a stop” button at the bottom of this page.",
+        "fr": "Pour surveiller un arrêt qui n’est pas près de chez vous (travail, école…) : tapez son numéro, inscrit sur le panneau de l’arrêt, ou trouvez-le avec le bouton « Chercher un arrêt » en bas de cette page."
+      }
+    },
+    {
+      "key": "stops",
+      "type": "string",
+      "label": {
+        "en": "Stops",
+        "fr": "Arrêts"
+      },
+      "description": {
+        "en": "Stop numbers. Optional route filter after @ and custom name after : — e.g. \"18761, 1321@523:Bus to work\".",
+        "fr": "Numéros d'arrêt. Filtre de lignes optionnel après @ et nom personnalisé après : — ex. « 18761, 1321@523:Bus du travail »."
+      },
+      "required": false,
+      "placeholder": {
+        "en": "18761, 1321@523:Bus to work",
+        "fr": "18761, 1321@523:Bus du travail"
+      }
+    },
+    {
+      "key": "refresh",
+      "type": "section",
+      "label": {
+        "en": "Advanced",
+        "fr": "Avancé"
+      },
+      "description": {
+        "en": "The defaults suit almost everyone. One read of the real-time feed serves every stop.",
+        "fr": "Les valeurs par défaut conviennent à presque tout le monde. Une seule lecture du flux temps réel sert tous les arrêts."
+      }
+    },
+    {
+      "key": "departures_poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Departures refresh interval (s)",
+        "fr": "Rafraîchissement des passages (s)"
+      },
+      "description": {
+        "en": "How often the departures are refreshed, in seconds.",
+        "fr": "Fréquence de rafraîchissement des passages, en secondes."
+      },
+      "required": false,
+      "default": 60,
+      "min": 30,
+      "max": 3600
+    },
+    {
+      "key": "lines_poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Lines refresh interval (s)",
+        "fr": "Rafraîchissement des lignes (s)"
+      },
+      "description": {
+        "en": "How often the line status is refreshed, in seconds.",
+        "fr": "Fréquence de rafraîchissement de l'état des lignes, en secondes."
+      },
+      "required": false,
+      "default": 120,
+      "min": 30,
+      "max": 3600
+    },
+    {
+      "key": "max_departures",
+      "type": "number",
+      "label": {
+        "en": "Departures per stop",
+        "fr": "Passages par arrêt"
+      },
+      "description": {
+        "en": "How many upcoming departures each stop device exposes as features.",
+        "fr": "Nombre de prochains passages exposés en fonctionnalités par arrêt."
+      },
+      "required": false,
+      "default": 3,
+      "min": 1,
+      "max": 5
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the values",
+        "fr": "Langue des valeurs"
+      },
+      "description": {
+        "en": "Language of the feature names and of the texts published.",
+        "fr": "Langue des noms de fonctionnalités et des textes publiés."
+      },
+      "required": false,
+      "default": "en",
+      "options": [
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français"
+          }
+        },
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "key": "search_stops",
+      "label": {
+        "en": "Find a stop",
+        "fr": "Chercher un arrêt"
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "query",
+          "type": "string",
+          "label": {
+            "en": "Street, stop name or number",
+            "fr": "Rue, nom ou numéro de l’arrêt"
+          },
+          "placeholder": {
+            "en": "Churchill",
+            "fr": "Churchill"
+          },
+          "required": true
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "departure_approaching",
+      "label": {
+        "en": "Departure approaching",
+        "fr": "Passage imminent"
+      },
+      "description": {
+        "en": "A departure of a watched stop is now less than the chosen number of minutes away.",
+        "fr": "Un passage d'un arrêt surveillé a lieu désormais dans moins du nombre de minutes choisi."
+      },
+      "fields": [
+        {
+          "key": "stop",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt"
+          },
+          "required": true
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "label": {
+            "en": "Minutes before departure",
+            "fr": "Minutes avant le passage"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "1 minute",
+                "fr": "1 minute"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "2 minutes",
+                "fr": "2 minutes"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "3 minutes",
+                "fr": "3 minutes"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "5 minutes",
+                "fr": "5 minutes"
+              }
+            },
+            {
+              "value": "10",
+              "label": {
+                "en": "10 minutes",
+                "fr": "10 minutes"
+              }
+            },
+            {
+              "value": "15",
+              "label": {
+                "en": "15 minutes",
+                "fr": "15 minutes"
+              }
+            }
+          ]
+        },
+        {
+          "key": "route",
+          "type": "string",
+          "label": {
+            "en": "Route (empty: any)",
+            "fr": "Ligne (vide : toutes)"
+          },
+          "placeholder": {
+            "en": "523",
+            "fr": "523"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "stop_name",
+          "type": "string",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt"
+          }
+        },
+        {
+          "key": "route",
+          "type": "string",
+          "label": {
+            "en": "Route",
+            "fr": "Ligne"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to wait",
+            "fr": "Minutes d'attente"
+          }
+        }
+      ]
+    },
+    {
+      "key": "line_status_changed",
+      "label": {
+        "en": "Line status changed",
+        "fr": "État d'une ligne modifié"
+      },
+      "description": {
+        "en": "A line was disrupted, got back to normal, or received a service notice.",
+        "fr": "Une ligne a été perturbée, est revenue à la normale ou a reçu un avis de service."
+      },
+      "fields": [
+        {
+          "key": "line",
+          "type": "multi_select",
+          "label": {
+            "en": "Lines",
+            "fr": "Lignes"
+          },
+          "options": [
+            {
+              "value": "capital",
+              "label": {
+                "en": "Capital Line",
+                "fr": "Ligne Capital"
+              }
+            },
+            {
+              "value": "metro",
+              "label": {
+                "en": "Metro Line",
+                "fr": "Ligne Metro"
+              }
+            },
+            {
+              "value": "valley",
+              "label": {
+                "en": "Valley Line",
+                "fr": "Ligne Valley"
+              }
+            }
+          ]
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Events",
+            "fr": "Événements"
+          },
+          "options": [
+            {
+              "value": "disrupted",
+              "label": {
+                "en": "Disrupted",
+                "fr": "Perturbée"
+              }
+            },
+            {
+              "value": "restored",
+              "label": {
+                "en": "Back to normal",
+                "fr": "Retour à la normale"
+              }
+            },
+            {
+              "value": "notice",
+              "label": {
+                "en": "Service notice",
+                "fr": "Avis de service"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "line_name",
+          "type": "string",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "ETS message",
+            "fr": "Message ETS"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "get_next_departures",
+      "label": {
+        "en": "Read the next departures",
+        "fr": "Lire les prochains passages"
+      },
+      "description": {
+        "en": "Reads the next departures of a watched stop, now.",
+        "fr": "Lit maintenant les prochains passages d'un arrêt surveillé."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "stop",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt"
+          },
+          "required": true
+        },
+        {
+          "key": "route",
+          "type": "string",
+          "label": {
+            "en": "Route (empty: any)",
+            "fr": "Ligne (vide : toutes)"
+          },
+          "placeholder": {
+            "en": "523",
+            "fr": "523"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "route",
+          "type": "string",
+          "label": {
+            "en": "Route",
+            "fr": "Ligne"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to wait",
+            "fr": "Minutes d'attente"
+          }
+        },
+        {
+          "key": "following_minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to the following one",
+            "fr": "Minutes jusqu'au suivant"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Departure board",
+            "fr": "Tableau des passages"
+          }
+        },
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Upcoming departures",
+            "fr": "Passages à venir"
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_line_status",
+      "label": {
+        "en": "Read a line status",
+        "fr": "Lire l'état d'une ligne"
+      },
+      "description": {
+        "en": "Reads the current status of one line, now.",
+        "fr": "Lit maintenant l'état actuel d'une ligne."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "line",
+          "type": "select",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "capital",
+              "label": {
+                "en": "Capital Line",
+                "fr": "Ligne Capital"
+              }
+            },
+            {
+              "value": "metro",
+              "label": {
+                "en": "Metro Line",
+                "fr": "Ligne Metro"
+              }
+            },
+            {
+              "value": "valley",
+              "label": {
+                "en": "Valley Line",
+                "fr": "Ligne Valley"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "line_name",
+          "type": "string",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne"
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status code",
+            "fr": "Code d'état"
+          }
+        },
+        {
+          "key": "status_label",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "État"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "ETS message",
+            "fr": "Message ETS"
+          }
+        },
+        {
+          "key": "normal",
+          "type": "boolean",
+          "label": {
+            "en": "Normal service",
+            "fr": "Service normal"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "departures",
+      "label": {
+        "en": "ETS departures",
+        "fr": "Passages ETS"
+      },
+      "description": {
+        "en": "The next departures of a watched stop.",
+        "fr": "Les prochains passages d'un arrêt surveillé."
+      },
+      "icon": "clock",
+      "settings": [
+        {
+          "key": "stop",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "line_status",
+      "label": {
+        "en": "ETS line status",
+        "fr": "État des lignes ETS"
+      },
+      "description": {
+        "en": "The status of the LRT lines, with the ETS alerts.",
+        "fr": "L'état des lignes (SLR), avec les alertes ETS."
+      },
+      "icon": "activity"
+    }
+  ]
+}

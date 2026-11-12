@@ -28,7 +28,7 @@ User documentation: [français](docs/fr.md) · [English](docs/en.md).
 | Scene actions         | read the next departures of a stop, read the status of a line                               |
 | Configuration buttons | find a stop by name                                                                         |
 
-Requires Gladys **5.1.0** or later.
+Requires Gladys **5.3.0** or later.
 
 ## How it works
 

@@ -19,6 +19,8 @@ import {
   refreshDeviceNow,
 } from '../src/devices/index.js';
 import { NO_DEPARTURE_MINUTES } from '../src/devices/stop.js';
+import { createBikeStationBlueprint } from '../src/devices/bikeStation.js';
+import { assertCoreDevice } from './helpers/coreFeature.js';
 import { clearPollSchedule } from '../src/devices/pollSchedule.js';
 import { clearStateCache } from '../src/devices/stateCache.js';
 import { clearPublishReports } from '../src/devices/publish.js';
@@ -115,6 +117,33 @@ test('every discovery payload is one the core accepts', () => {
   }
   // 2 departures x (minutes + route) + summary.
   assert.equal(buildDiscoveredDevices(gladys, config)[1].features.length, 5);
+});
+
+test('every feature of every device kind has a numeric min and max and the other core fields', () => {
+  const gladys = createFakeGladys();
+  let features = 0;
+  for (const language of ['en', 'fr']) {
+    for (let max = 1; max <= 5; max += 1) {
+      const cfg = normalizeConfig({ ...config, max_departures: max, language });
+      for (const device of buildDiscoveredDevices(gladys, cfg)) {
+        features += assertCoreDevice(device, `${device.name} ${max} ${language}`);
+      }
+    }
+    // The bike share is unused in Edmonton, its code is shared with the sister repositories.
+    const bikes = createBikeStationBlueprint({ id: '7', name: 'Station' });
+    features += assertCoreDevice(
+      bikes.buildDevice(gladys, normalizeConfig({ ...config, language })),
+      'bikes',
+    );
+  }
+  // Per language: the lines device (Capital, Metro, Valley: status + message)
+  // five times, two stops of 2 x max + 1 features for max = 1..5, and the bike
+  // station.
+  const bikeFeatures = createBikeStationBlueprint({ id: '7', name: 'Station' }).buildDevice(
+    gladys,
+    config,
+  ).features.length;
+  assert.equal(features, 2 * (5 * 6 + 2 * (3 + 5 + 7 + 9 + 11) + bikeFeatures));
 });
 
 test('feature names follow the configured language', () => {

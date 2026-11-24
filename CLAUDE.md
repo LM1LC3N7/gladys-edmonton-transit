@@ -7,7 +7,7 @@ Guidance for Claude Code (and any other contributor) working in this repository.
 An **external Gladys Assistant integration** for Edmonton public transit
 (ETS, Edmonton Transit Service: buses and LRT). It runs as a Docker container
 next to a Gladys instance, talks to Gladys through the official SDK
-(`@gladysassistant/integration-sdk`), and publishes **read-only** devices:
+(`@gladysassistant/integration-sdk`, v0.16), and publishes **read-only** devices:
 one per watched stop, one for the line status (LRT Capital, Metro and Valley
 lines).
 
@@ -43,7 +43,7 @@ applies there).
 
 ```bash
 npm ci
-npm test               # node --test, no framework, no network access
+npm test               # node --test --test-timeout=60000, no network access
 npm run lint           # eslint
 npm run format         # prettier --write .
 npm run format:check   # what CI checks
@@ -149,6 +149,12 @@ cards.
 - **External ids, feature keys, manifest keys are forever**: Gladys keys the
   devices, their history, the scenes and the dashboards on them. The line ids
   of `src/network.js` (`capital`, `metro`, `valley`) are feature keys.
+- **Features follow the core model.** Every feature has a numeric `min` and
+  `max` (0/0 for text, `src/devices/featureRange.js`), `read_only` and
+  `has_feedback`: Gladys answers HTTP 422 otherwise
+  (`test/helpers/coreFeature.js` checks every device kind). Every device
+  carries `poll_frequency` and `should_poll: true`: Gladys 5.3 polls them,
+  and `src/devices/refreshLoop.js` covers the devices created before.
 - **Created devices** are rebuilt from their params (`stop_code`, `routes`,
   `station_id`): never rename those params.
 - **Versions belong to the Release workflow**: never edit `version` in
